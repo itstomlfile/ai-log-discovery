@@ -3,7 +3,7 @@ import random
 from datetime import datetime
 
 # Constants
-NUM_EXECUTIONS = 1000000
+NUM_EXECUTIONS = 1000
 LOG_FILE = "production_logs.jsonl"
 
 def validate_file(file_name, file_size, num_lines, file_data):
