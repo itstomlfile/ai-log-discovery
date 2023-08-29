@@ -1,6 +1,7 @@
 import gensim
 import json
 import re
+from helpers import load_model
 
 def tokenize_log(log):
     """
@@ -44,18 +45,7 @@ def train_word2vec_model(logs):
     model.train(tokenized_logs, total_examples=len(tokenized_logs), epochs=10)
     return model
 
-# Define model file name
-model_filename = "processed_logs.model"
 
-# Try to load the pretrained model or train a new one
-try:
-    model = gensim.models.Word2Vec.load(model_filename)
-except FileNotFoundError:
-    print("Model not found. Training a new model on the provided logs...")
-    logs = read_logs("production_logs.jsonl")
-    model = train_word2vec_model(logs)
-    model.save(model_filename)
-    print(f"Model saved as {model_filename}")
 
 
 def process_logs(input_filename, output_filename, model):
@@ -71,5 +61,15 @@ def process_logs(input_filename, output_filename, model):
             outfile.write(json.dumps({"message": message, "vector": vector.tolist()}) + '\n')
 
 
-# Process logs and write vectorized representation
-process_logs("production_logs.jsonl", "vectorized_logs.jsonl", model)
+if __name__ == "__main__":
+    model_filename = "processed_logs.model"
+    try:
+        model = load_model(model_filename)
+    except FileNotFoundError:
+        print("Model not found. Training a new model on the provided logs...")
+        logs = read_logs("production_logs.jsonl")
+        model = train_word2vec_model(logs)
+        model.save(model_filename)
+        print(f"Model saved as {model_filename}")
+
+    process_logs("production_logs.jsonl", "vectorized_logs.jsonl", model)
